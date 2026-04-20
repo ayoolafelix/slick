@@ -1,0 +1,11 @@
+web/node_modules
+web/dist
+web/.env
+web/.env.local
+target
+.anchor
+.home
+.wallets
+.validator
+.cache
+.DS_Store
