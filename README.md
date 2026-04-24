@@ -46,7 +46,14 @@ cd /Users/felixayoola/Documents/slick
 bash scripts/local-deploy.sh
 ```
 
-7. When the public devnet faucet is available again, deploy to devnet with the dedicated payer wallet:
+7. Smoke test the local on-chain flow end to end:
+
+```bash
+cd /Users/felixayoola/Documents/slick
+bash scripts/smoke-test-local.sh
+```
+
+8. When the public devnet faucet is available again, deploy to devnet with the dedicated payer wallet:
 
 ```bash
 cd /Users/felixayoola/Documents/slick
@@ -58,6 +65,7 @@ bash scripts/devnet-deploy.sh
 - Frontend routes and UX for creator and consumer flows are in place.
 - Supabase tables and storage bucket policies are defined.
 - Anchor-compatible Solana build and local deployment scripts are in place.
+- A local smoke test now verifies `create_content` and `purchase_content` against a fresh validator.
 - Devnet publish is wired, but still depends on obtaining faucet funds for the dedicated deployer wallet.
 
 ## Tooling note

@@ -9,6 +9,7 @@ PROGRAM_SO="$ROOT_DIR/target/deploy/monetization_layer.so"
 VALIDATOR_DIR="$ROOT_DIR/.validator"
 LEDGER_DIR="$VALIDATOR_DIR/ledger"
 LOG_FILE="$VALIDATOR_DIR/solana-test-validator.log"
+RPC_URL="${SOLANA_RPC_URL:-http://127.0.0.1:8899}"
 
 mkdir -p "$VALIDATOR_DIR" "$LEDGER_DIR"
 
@@ -30,19 +31,20 @@ nohup solana-test-validator --ledger "$LEDGER_DIR" --reset >"$LOG_FILE" 2>&1 </d
 disown || true
 
 for _ in {1..30}; do
-  if solana cluster-version --url localhost >/dev/null 2>&1; then
+  if solana cluster-version --url "$RPC_URL" >/dev/null 2>&1; then
     break
   fi
   sleep 1
 done
 
-solana config set --url localhost --keypair "$DEPLOYER_WALLET"
-solana airdrop 100 "$DEPLOYER_WALLET" >/dev/null
+solana airdrop 100 "$DEPLOYER_WALLET" --url "$RPC_URL" >/dev/null
 
 cargo build-sbf \
   --manifest-path "$ROOT_DIR/programs/monetization_layer/Cargo.toml" \
   --sbf-out-dir "$ROOT_DIR/target/deploy"
 
 solana program deploy \
+  --url "$RPC_URL" \
+  --keypair "$DEPLOYER_WALLET" \
   --program-id "$PROGRAM_KEYPAIR" \
   "$PROGRAM_SO"
