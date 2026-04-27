@@ -27,7 +27,7 @@ function AppShell() {
 
   async function copyEnvChecklist() {
     await navigator.clipboard.writeText(
-      'VITE_SOLANA_NETWORK=devnet\nVITE_MONETIZATION_PROGRAM_ID=\nVITE_SUPABASE_URL=\nVITE_SUPABASE_ANON_KEY=\n',
+      'VITE_SOLANA_NETWORK=devnet\nVITE_MONETIZATION_PROGRAM_ID=\nVITE_SUPABASE_URL=\nVITE_SUPABASE_ANON_KEY=\nVITE_SUPABASE_PUBLISHABLE_KEY=\n',
     )
     setCopied(true)
     window.setTimeout(() => setCopied(false), 2000)

@@ -4,7 +4,10 @@ type Network = 'devnet' | 'mainnet-beta' | 'testnet'
 
 const solanaNetwork = (import.meta.env.VITE_SOLANA_NETWORK || 'devnet') as Network
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
+const supabaseAnonKey =
+  import.meta.env.VITE_SUPABASE_ANON_KEY ||
+  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+  ''
 const programId = import.meta.env.VITE_MONETIZATION_PROGRAM_ID || ''
 
 export const runtimeConfig = {

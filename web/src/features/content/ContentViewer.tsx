@@ -7,6 +7,25 @@ import { useContentPurchase } from './useContentPurchase'
 import { formatSol, shortenAddress } from '../../lib/solana'
 import { runtimeConfig } from '../../lib/config'
 
+const demoContentId = 'demo-content-id'
+const demoContent: ContentRecord = {
+  id: demoContentId,
+  creator_wallet: '11111111111111111111111111111111',
+  title: 'Programmable monetization demo drop',
+  description:
+    'A sample unlock flow that lets you inspect the hosted experience before the backend project is fully provisioned.',
+  preview_text:
+    'This demo preview stays public so anyone can inspect the paywall shell, wallet hooks, and unlock UX without touching live records.',
+  body_markdown:
+    'Week 1 ships the thin edge of the wedge: a creator publishes an asset, a buyer pays once, and the app swaps the preview for the full experience. The live Supabase project still needs the SQL migration before public records can be written.',
+  storage_bucket: null,
+  storage_path: null,
+  content_hash: 'demo-content-hash',
+  chain_content_pda: null,
+  price_lamports: 250_000_000,
+  created_at: '2026-04-27T00:00:00.000Z',
+}
+
 export function ContentViewer() {
   const { contentId = '' } = useParams()
   const wallet = useWallet()
@@ -14,11 +33,19 @@ export function ContentViewer() {
   const [loadError, setLoadError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const { error: purchaseError, purchase, signedUrl, state } = useContentPurchase(content)
+  const isDemoRoute = contentId === demoContentId
 
   useEffect(() => {
     let cancelled = false
 
     async function loadContent() {
+      if (isDemoRoute) {
+        setContent(demoContent)
+        setLoadError(null)
+        setLoading(false)
+        return
+      }
+
       try {
         setLoading(true)
         const record = await fetchContentById(contentId)
@@ -46,7 +73,7 @@ export function ContentViewer() {
     return () => {
       cancelled = true
     }
-  }, [contentId])
+  }, [contentId, isDemoRoute])
 
   return (
     <main className="page">
@@ -99,6 +126,13 @@ export function ContentViewer() {
                 </article>
               </div>
 
+              {isDemoRoute ? (
+                <div className="notice">
+                  This demo route is powered by sample content so the hosted app stays explorable
+                  while the real Supabase tables and storage policies are being applied.
+                </div>
+              ) : null}
+
               {state !== 'unlocked' ? (
                 <div className="viewer-lock">
                   <h3>Preview</h3>
@@ -108,20 +142,31 @@ export function ContentViewer() {
 
                   {purchaseError ? <div className="notice error">{purchaseError}</div> : null}
 
-                  <div className="hero-actions">
-                    <button
-                      className="button button-primary"
-                      disabled={!wallet.connected || state === 'paying'}
-                      onClick={purchase}
-                    >
-                      {state === 'paying' ? 'Confirming payment...' : `Pay ${formatSol(content.price_lamports)}`}
-                    </button>
-                    {!wallet.connected ? (
+                  {isDemoRoute ? (
+                    <div className="hero-actions">
                       <span className="mini-note">
-                        Connect Phantom before attempting payment.
+                        The live payment button will activate after the hosted Supabase schema and
+                        devnet program are available.
                       </span>
-                    ) : null}
-                  </div>
+                    </div>
+                  ) : (
+                    <div className="hero-actions">
+                      <button
+                        className="button button-primary"
+                        disabled={!wallet.connected || state === 'paying'}
+                        onClick={purchase}
+                      >
+                        {state === 'paying'
+                          ? 'Confirming payment...'
+                          : `Pay ${formatSol(content.price_lamports)}`}
+                      </button>
+                      {!wallet.connected ? (
+                        <span className="mini-note">
+                          Connect Phantom before attempting payment.
+                        </span>
+                      ) : null}
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="viewer-unlocked">

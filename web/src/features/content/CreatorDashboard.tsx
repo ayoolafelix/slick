@@ -154,8 +154,9 @@ export function CreatorDashboard() {
         {!runtimeConfig.supabaseConfigured ? (
           <div className="notice warning">
             Add <span className="inline-code">VITE_SUPABASE_URL</span> and{' '}
-            <span className="inline-code">VITE_SUPABASE_ANON_KEY</span> before trying to
-            save creator content.
+            <span className="inline-code">VITE_SUPABASE_ANON_KEY</span> or{' '}
+            <span className="inline-code">VITE_SUPABASE_PUBLISHABLE_KEY</span> before
+            trying to save creator content.
           </div>
         ) : null}
 

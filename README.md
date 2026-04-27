@@ -39,6 +39,9 @@ cd /Users/felixayoola/Documents/slick/web
 cp .env.example .env
 ```
 
+Set `VITE_SUPABASE_URL` and then use either `VITE_SUPABASE_ANON_KEY` or
+`VITE_SUPABASE_PUBLISHABLE_KEY` for the client-side Supabase key.
+
 6. Deploy the Solana program locally with the repo-local toolchain home:
 
 ```bash
