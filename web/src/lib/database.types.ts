@@ -14,6 +14,7 @@ export type Database = {
           content_hash: string
           chain_content_pda: string | null
           price_lamports: number
+          access_model: 'standard' | 'nft'
           created_at: string
         }
         Insert: {
@@ -28,6 +29,7 @@ export type Database = {
           content_hash: string
           chain_content_pda?: string | null
           price_lamports: number
+          access_model?: 'standard' | 'nft'
           created_at?: string
         }
         Update: {
@@ -41,6 +43,7 @@ export type Database = {
           content_hash?: string
           chain_content_pda?: string | null
           price_lamports?: number
+          access_model?: 'standard' | 'nft'
           created_at?: string
         }
         Relationships: []
@@ -51,6 +54,8 @@ export type Database = {
           content_id: string
           buyer_pubkey: string
           tx_sig: string
+          access_nft_mint: string | null
+          access_nft_tx_sig: string | null
           confirmed_at: string
           created_at: string
         }
@@ -59,6 +64,8 @@ export type Database = {
           content_id: string
           buyer_pubkey: string
           tx_sig: string
+          access_nft_mint?: string | null
+          access_nft_tx_sig?: string | null
           confirmed_at?: string
           created_at?: string
         }
@@ -66,6 +73,8 @@ export type Database = {
           content_id?: string
           buyer_pubkey?: string
           tx_sig?: string
+          access_nft_mint?: string | null
+          access_nft_tx_sig?: string | null
           confirmed_at?: string
           created_at?: string
         }

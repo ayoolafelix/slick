@@ -1,0 +1,22 @@
+{
+  "name": "Slick Access Pass",
+  "symbol": "SLICKPASS",
+  "description": "Transferable access pass for programmable monetization on Solana.",
+  "seller_fee_basis_points": 0,
+  "image": "https://slick-web-lemon.vercel.app/access-pass-art.svg",
+  "external_url": "https://slick-web-lemon.vercel.app",
+  "attributes": [
+    {
+      "trait_type": "Product",
+      "value": "Programmable monetization infrastructure"
+    },
+    {
+      "trait_type": "Network",
+      "value": "Solana"
+    },
+    {
+      "trait_type": "Unlock",
+      "value": "Transferable access"
+    }
+  ]
+}

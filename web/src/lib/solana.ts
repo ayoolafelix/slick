@@ -11,6 +11,19 @@ export function formatSol(lamports: number) {
   return `${(lamports / LAMPORTS_PER_SOL).toFixed(3)} SOL`
 }
 
+export function formatUsdEstimate(lamports: number, solPriceUsd: number | null) {
+  if (!solPriceUsd) {
+    return null
+  }
+
+  const usd = (lamports / LAMPORTS_PER_SOL) * solPriceUsd
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: usd >= 100 ? 0 : 2,
+  }).format(usd)
+}
+
 export function shortenAddress(address: string) {
   if (address.length < 10) {
     return address
@@ -28,6 +41,16 @@ export function deriveContentPda(creatorWallet: string) {
   )
 
   return contentPda.toBase58()
+}
+
+export function explorerTxUrl(signature: string) {
+  const cluster = runtimeConfig.solanaNetwork === 'mainnet-beta' ? '' : `?cluster=${runtimeConfig.solanaNetwork}`
+  return `https://explorer.solana.com/tx/${signature}${cluster}`
+}
+
+export function explorerAddressUrl(address: string) {
+  const cluster = runtimeConfig.solanaNetwork === 'mainnet-beta' ? '' : `?cluster=${runtimeConfig.solanaNetwork}`
+  return `https://explorer.solana.com/address/${address}${cluster}`
 }
 
 export async function digestContent(input: string | ArrayBuffer) {

@@ -1,0 +1,33 @@
+<svg width="1200" height="1200" viewBox="0 0 1200 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="1200" rx="120" fill="#09121F"/>
+  <rect x="64" y="64" width="1072" height="1072" rx="72" fill="url(#paint0_linear)" stroke="rgba(255,255,255,0.16)"/>
+  <circle cx="928" cy="248" r="158" fill="url(#paint1_radial)" fill-opacity="0.9"/>
+  <circle cx="284" cy="926" r="208" fill="url(#paint2_radial)" fill-opacity="0.78"/>
+  <rect x="140" y="166" width="288" height="80" rx="40" fill="rgba(6,19,29,0.62)" stroke="rgba(255,255,255,0.12)"/>
+  <text x="196" y="217" fill="#B7EDE6" font-family="Avenir Next, Plus Jakarta Sans, sans-serif" font-size="34" font-weight="700">SLICK PASS</text>
+  <text x="140" y="418" fill="#F9FBFF" font-family="Iowan Old Style, Fraunces, serif" font-size="132" font-weight="700">Access</text>
+  <text x="140" y="544" fill="#F9FBFF" font-family="Iowan Old Style, Fraunces, serif" font-size="132" font-weight="700">Becomes</text>
+  <text x="140" y="670" fill="#F9FBFF" font-family="Iowan Old Style, Fraunces, serif" font-size="132" font-weight="700">Transferable</text>
+  <text x="144" y="776" fill="#D6DEEC" font-family="Avenir Next, Plus Jakarta Sans, sans-serif" font-size="42">
+    Programmable monetization infrastructure on Solana.
+  </text>
+  <text x="144" y="838" fill="#8EA1BF" font-family="IBM Plex Mono, monospace" font-size="30">
+    Whoever holds this wallet pass can unlock the drop.
+  </text>
+  <rect x="140" y="924" width="920" height="118" rx="36" fill="rgba(6,19,29,0.68)" stroke="rgba(255,255,255,0.12)"/>
+  <text x="186" y="996" fill="#9EF0E4" font-family="IBM Plex Mono, monospace" font-size="36">This is not a platform. It is infrastructure.</text>
+  <defs>
+    <linearGradient id="paint0_linear" x1="64" y1="64" x2="1136" y2="1136" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#102135"/>
+      <stop offset="1" stop-color="#0D1830"/>
+    </linearGradient>
+    <radialGradient id="paint1_radial" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(928 248) rotate(90) scale(158)">
+      <stop stop-color="#FFB450"/>
+      <stop offset="1" stop-color="#FFB450" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="paint2_radial" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(284 926) rotate(90) scale(208)">
+      <stop stop-color="#52C7B8"/>
+      <stop offset="1" stop-color="#52C7B8" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+</svg>

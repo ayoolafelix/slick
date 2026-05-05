@@ -1,3 +1,5 @@
+export type AccessModel = 'standard' | 'nft'
+
 export type ContentRecord = {
   id: string
   creator_wallet: string
@@ -10,6 +12,7 @@ export type ContentRecord = {
   content_hash: string
   chain_content_pda: string | null
   price_lamports: number
+  access_model: AccessModel
   created_at: string
 }
 
@@ -18,6 +21,8 @@ export type PurchaseRecord = {
   buyer_pubkey: string
   content_id: string
   tx_sig: string
+  access_nft_mint: string | null
+  access_nft_tx_sig: string | null
   confirmed_at: string
 }
 
@@ -30,5 +35,6 @@ export type NewContentInput = {
   priceLamports: number
   contentHash: string
   chainContentPda: string | null
+  accessModel: AccessModel
   file: File | null
 }

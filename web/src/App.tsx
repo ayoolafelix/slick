@@ -59,19 +59,20 @@ function AppShell() {
           element={
             <main className="page">
               <section className="hero-panel">
-                <div className="eyebrow">Week 1 foundation</div>
-                <h1>A creator sets a price. A consumer pays in SOL. Content unlocks.</h1>
+                <div className="eyebrow">48-hour launch mode</div>
+                <h1>A creator sets a price. A buyer pays. Access becomes programmable.</h1>
                 <p className="lede">
-                  This starter focuses on the only flow that matters in the first sprint:
-                  upload content, set a price, share a link, pay, unlock.
+                  The sprint plan is now compressed into one ruthless path: solid pay-to-unlock
+                  core flow, NFT-backed access for the wow moment, QR handoff for the live demo,
+                  and a product story that feels bigger than a single app.
                 </p>
 
                 <div className="hero-actions">
                   <Link className="button button-primary" to="/creator">
-                    Start creator flow
+                    Launch creator flow
                   </Link>
                   <Link className="button button-secondary" to={exampleViewerRoute}>
-                    Open viewer shell
+                    Open buyer story
                   </Link>
                 </div>
               </section>
@@ -88,21 +89,22 @@ function AppShell() {
               <section className="split-grid">
                 <article className="glass-card">
                   <div className="section-label">Core flow</div>
-                  <h2>Ship the paywall before the wow feature.</h2>
+                  <h2>Money moves the moment content unlocks.</h2>
                   <ul className="checklist">
-                    <li>Creator stores metadata in Supabase and prepares the content PDA.</li>
-                    <li>Viewer checks purchase status before revealing content.</li>
-                    <li>Consumer pays directly on devnet while the program client is being wired.</li>
-                    <li>Transaction signature lands in Supabase for instant unlock UX.</li>
+                    <li>Creator publishes a paid link with optional private storage.</li>
+                    <li>Buyer opens the route, connects a wallet, and pays in SOL.</li>
+                    <li>Unlock survives partial backend lag because payment is treated as the source of truth.</li>
+                    <li>The app surfaces Explorer verification so judges can see the transaction immediately.</li>
                   </ul>
                 </article>
 
                 <article className="glass-card">
-                  <div className="section-label">Configuration</div>
-                  <h2>Use one env file to unblock the whole sprint.</h2>
+                  <div className="section-label">Wow + edge</div>
+                  <h2>Transferable access pass. Mobile QR handoff.</h2>
                   <p>
-                    The frontend is wired for devnet, Supabase, and a deployed Anchor program.
-                    Keep those values centralized so the demo does not drift from the code.
+                    The differentiators are deliberately practical: NFT-backed access so the
+                    unlock can move between wallets, and QR-based mobile entry so the demo can
+                    jump from laptop to phone in one scan.
                   </p>
                   <div className="inline-actions">
                     <button className="button button-secondary" onClick={copyEnvChecklist}>
@@ -119,19 +121,19 @@ function AppShell() {
 
               <section className="timeline">
                 <article>
-                  <span>Day 1-2</span>
-                  <strong>Wallet + Supabase foundation</strong>
-                  <p>Connect Phantom, create tables, and prove content rows can be written.</p>
+                  <span>Hour 0-12</span>
+                  <strong>Core paywall stabilized</strong>
+                  <p>Wallet, content creation, payment, unlock, and fallback paths all hold together.</p>
                 </article>
                 <article>
-                  <span>Day 3-4</span>
-                  <strong>Anchor program deploy</strong>
-                  <p>Register creator pricing on devnet and persist the content PDA.</p>
+                  <span>Hour 12-30</span>
+                  <strong>Access pass + QR moment</strong>
+                  <p>NFT-backed unlock and mobile scan flow become the demo differentiators.</p>
                 </article>
                 <article>
-                  <span>Day 5-7</span>
-                  <strong>Pay and unlock loop</strong>
-                  <p>Confirm the transaction, record the signature, and reveal the content.</p>
+                  <span>Hour 30-48</span>
+                  <strong>Pitch packaging</strong>
+                  <p>Copy, screenshots, deck story, demo script, and rehearsal assets get locked.</p>
                 </article>
               </section>
             </main>

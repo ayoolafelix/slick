@@ -480,6 +480,48 @@ textarea {
   margin-top: 6px;
 }
 
+.metric small {
+  display: block;
+  margin-top: 8px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.choice-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.choice-card {
+  text-align: left;
+  padding: 18px;
+  border-radius: 22px;
+  border: 1px solid rgba(176, 193, 219, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  color: inherit;
+}
+
+.choice-card strong,
+.choice-card span {
+  display: block;
+}
+
+.choice-card strong {
+  color: var(--text-strong);
+}
+
+.choice-card span {
+  margin-top: 8px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.choice-card.selected {
+  border-color: rgba(82, 199, 184, 0.45);
+  background: rgba(82, 199, 184, 0.12);
+}
+
 .record-list {
   display: grid;
   gap: 14px;
@@ -517,6 +559,42 @@ textarea {
   margin-top: 16px;
   color: var(--muted);
   font-size: 0.88rem;
+}
+
+.qr-card,
+.access-pass-card {
+  padding: 22px;
+  border-radius: 24px;
+  border: 1px solid rgba(176, 193, 219, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  display: grid;
+  gap: 18px;
+}
+
+.qr-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+}
+
+.qr-grid canvas {
+  width: 240px;
+  max-width: 100%;
+  border-radius: 24px;
+  background: #f5fbfa;
+  padding: 14px;
+}
+
+.qr-actions {
+  display: grid;
+  gap: 10px;
+}
+
+.unlock-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .mono {
@@ -590,7 +668,9 @@ textarea {
   .status-grid,
   .timeline,
   .metric-row,
-  .field-row {
+  .field-row,
+  .choice-grid,
+  .qr-grid {
     grid-template-columns: 1fr;
   }
 

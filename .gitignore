@@ -9,3 +9,4 @@ target
 .validator
 .cache
 .DS_Store
+supabase/.temp
