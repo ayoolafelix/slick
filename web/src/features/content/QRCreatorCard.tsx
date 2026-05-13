@@ -47,11 +47,10 @@ export function QRCreatorCard({ title, url }: QRCreatorCardProps) {
   return (
     <div className="qr-card">
       <div>
-        <div className="section-label">QR unlock</div>
-        <h3>Scan to open the paywall on mobile.</h3>
+        <div className="section-label">Share by QR</div>
+        <h3>Open this release instantly on mobile.</h3>
         <p className="viewer-copy">
-          This is the fastest live-demo move: show the creator screen on a laptop, scan with a
-          phone, connect Phantom mobile, and let the unlock happen on-device.
+          Show the code on any screen and move a buyer from discovery to checkout in one scan.
         </p>
       </div>
 
@@ -68,8 +67,7 @@ export function QRCreatorCard({ title, url }: QRCreatorCardProps) {
             Open link
           </a>
           <p className="mini-note">
-            Wallet fallback: if Phantom mobile is not installed, the link still opens in any
-            mobile browser for a narrated backup demo.
+            Works in wallet browsers and standard mobile browsers.
           </p>
         </div>
       </div>

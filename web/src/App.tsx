@@ -1,37 +1,24 @@
 import { Link, Route, Routes } from 'react-router-dom'
-import { useWallet } from '@solana/wallet-adapter-react'
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
-import { useState } from 'react'
 import { CreatorDashboard } from './features/content/CreatorDashboard'
+import { featuredViewerPath } from './features/content/featured'
 import { ContentViewer } from './features/content/ContentViewer'
-import { hasAppConfig, runtimeConfig } from './lib/config'
 
 function AppShell() {
-  const wallet = useWallet()
-  const [copied, setCopied] = useState(false)
-  const exampleViewerRoute = '/view/demo-content-id'
-  const appHealth = [
+  const productHighlights = [
     {
-      label: 'Wallet',
-      value: wallet.connected ? 'Connected' : 'Ready',
+      label: 'Settlement',
+      value: 'Instant SOL payment',
     },
     {
-      label: 'Supabase',
-      value: runtimeConfig.supabaseConfigured ? 'Configured' : 'Needs env',
+      label: 'Access',
+      value: 'Wallet-held unlocks',
     },
     {
-      label: 'Program',
-      value: runtimeConfig.programConfigured ? 'Configured' : 'Placeholder ID',
+      label: 'Distribution',
+      value: 'Share links and QR handoff',
     },
   ]
-
-  async function copyEnvChecklist() {
-    await navigator.clipboard.writeText(
-      'VITE_SOLANA_NETWORK=devnet\nVITE_MONETIZATION_PROGRAM_ID=\nVITE_SUPABASE_URL=\nVITE_SUPABASE_ANON_KEY=\nVITE_SUPABASE_PUBLISHABLE_KEY=\n',
-    )
-    setCopied(true)
-    window.setTimeout(() => setCopied(false), 2000)
-  }
 
   return (
     <div className="app-shell">
@@ -45,9 +32,9 @@ function AppShell() {
         </Link>
 
         <nav className="topnav">
-          <Link to="/">Overview</Link>
+          <Link to="/">Home</Link>
           <Link to="/creator">Creator Studio</Link>
-          <Link to={exampleViewerRoute}>Viewer</Link>
+          <Link to={featuredViewerPath}>Featured Release</Link>
         </nav>
 
         <WalletMultiButton className="wallet-button" />
@@ -59,26 +46,25 @@ function AppShell() {
           element={
             <main className="page">
               <section className="hero-panel">
-                <div className="eyebrow">48-hour launch mode</div>
-                <h1>A creator sets a price. A buyer pays. Access becomes programmable.</h1>
+                <div className="eyebrow">Wallet-native creator monetization</div>
+                <h1>Sell digital access directly on Solana.</h1>
                 <p className="lede">
-                  The sprint plan is now compressed into one ruthless path: solid pay-to-unlock
-                  core flow, NFT-backed access for the wow moment, QR handoff for the live demo,
-                  and a product story that feels bigger than a single app.
+                  Publish premium posts, gated files, and collectible access with instant
+                  wallet payments, shareable links, QR distribution, and optional transferability.
                 </p>
 
                 <div className="hero-actions">
                   <Link className="button button-primary" to="/creator">
-                    Launch creator flow
+                    Start publishing
                   </Link>
-                  <Link className="button button-secondary" to={exampleViewerRoute}>
-                    Open buyer story
+                  <Link className="button button-secondary" to={featuredViewerPath}>
+                    Open featured release
                   </Link>
                 </div>
               </section>
 
               <section className="status-grid">
-                {appHealth.map((item) => (
+                {productHighlights.map((item) => (
                   <article className="status-card" key={item.label}>
                     <span>{item.label}</span>
                     <strong>{item.value}</strong>
@@ -88,52 +74,42 @@ function AppShell() {
 
               <section className="split-grid">
                 <article className="glass-card">
-                  <div className="section-label">Core flow</div>
-                  <h2>Money moves the moment content unlocks.</h2>
+                  <div className="section-label">Creator workflow</div>
+                  <h2>Publish once. Share anywhere.</h2>
                   <ul className="checklist">
-                    <li>Creator publishes a paid link with optional private storage.</li>
-                    <li>Buyer opens the route, connects a wallet, and pays in SOL.</li>
-                    <li>Unlock survives partial backend lag because payment is treated as the source of truth.</li>
-                    <li>The app surfaces Explorer verification so judges can see the transaction immediately.</li>
+                    <li>Create a release with pricing, preview copy, and full-access content.</li>
+                    <li>Offer direct unlocks or a transferable access pass.</li>
+                    <li>Share the release as a clean link or a mobile-ready QR code.</li>
+                    <li>Track revenue and buyer activity from one creator workspace.</li>
                   </ul>
                 </article>
 
                 <article className="glass-card">
-                  <div className="section-label">Wow + edge</div>
-                  <h2>Transferable access pass. Mobile QR handoff.</h2>
+                  <div className="section-label">Access layer</div>
+                  <h2>Turn payment into programmable ownership.</h2>
                   <p>
-                    The differentiators are deliberately practical: NFT-backed access so the
-                    unlock can move between wallets, and QR-based mobile entry so the demo can
-                    jump from laptop to phone in one scan.
+                    Slick combines direct wallet checkout with optional access passes, so paid
+                    digital access can stay simple for one-time unlocks or become portable for
+                    memberships, collector drops, and premium communities.
                   </p>
-                  <div className="inline-actions">
-                    <button className="button button-secondary" onClick={copyEnvChecklist}>
-                      {copied ? 'Copied' : 'Copy env template'}
-                    </button>
-                    <span className="mini-note">
-                      {hasAppConfig
-                        ? 'Runtime config is loaded.'
-                        : 'The UI still loads without envs, but persistence will be blocked.'}
-                    </span>
-                  </div>
                 </article>
               </section>
 
               <section className="timeline">
                 <article>
-                  <span>Hour 0-12</span>
-                  <strong>Core paywall stabilized</strong>
-                  <p>Wallet, content creation, payment, unlock, and fallback paths all hold together.</p>
+                  <span>Publish</span>
+                  <strong>Price a premium release</strong>
+                  <p>Set a SOL price, write the preview, and define the full-access experience.</p>
                 </article>
                 <article>
-                  <span>Hour 12-30</span>
-                  <strong>Access pass + QR moment</strong>
-                  <p>NFT-backed unlock and mobile scan flow become the demo differentiators.</p>
+                  <span>Distribute</span>
+                  <strong>Share with links and QR</strong>
+                  <p>Move smoothly from desktop creation to mobile discovery in a single scan.</p>
                 </article>
                 <article>
-                  <span>Hour 30-48</span>
-                  <strong>Pitch packaging</strong>
-                  <p>Copy, screenshots, deck story, demo script, and rehearsal assets get locked.</p>
+                  <span>Unlock</span>
+                  <strong>Settle and grant access</strong>
+                  <p>Let buyers pay from their wallet and reopen eligible releases through ownership.</p>
                 </article>
               </section>
             </main>

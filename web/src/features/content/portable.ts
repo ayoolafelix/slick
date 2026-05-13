@@ -130,7 +130,7 @@ export function buildPortableShareUrl(record: ContentRecord, origin = window.loc
 
   if (payload.length > maxPortablePayloadLength) {
     throw new Error(
-      'Portable demo links work best for short text-only drops. Shorten the preview or unlocked body, or finish the Supabase setup before sharing this item.',
+      'This share-ready link is too large to package directly. Shorten the preview or full-access text before publishing.',
     )
   }
 

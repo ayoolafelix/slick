@@ -12,7 +12,7 @@ function isMissingSchemaError(message: string) {
 
 function formatSupabaseError(message: string) {
   if (isMissingSchemaError(message)) {
-    return 'Supabase is connected, but the monetization schema has not been applied yet. Run the migrations in /supabase/migrations first.'
+    return 'Content syncing is not fully enabled yet.'
   }
 
   return message
@@ -21,7 +21,9 @@ function formatSupabaseError(message: string) {
 export function shouldOfferPortableMode(message: string) {
   return (
     isMissingSchemaError(message) ||
-    message.includes('Supabase is not configured')
+    message.includes('Supabase is not configured') ||
+    message.includes('Content syncing is not available right now') ||
+    message.includes('Content syncing is not fully enabled yet')
   )
 }
 
@@ -31,7 +33,7 @@ export async function createContentRecord(
   const supabase = getSupabaseClient()
   if (!supabase) {
     throw new Error(
-      'Supabase is not configured. Add VITE_SUPABASE_URL and either VITE_SUPABASE_ANON_KEY or VITE_SUPABASE_PUBLISHABLE_KEY first.',
+      'Content syncing is not available right now.',
     )
   }
 
@@ -150,7 +152,7 @@ export async function recordPurchase(params: {
 }) {
   const supabase = getSupabaseClient()
   if (!supabase) {
-    throw new Error('Supabase is not configured.')
+    throw new Error('Content syncing is not available right now.')
   }
 
   const { error } = await supabase.from('purchases').insert({

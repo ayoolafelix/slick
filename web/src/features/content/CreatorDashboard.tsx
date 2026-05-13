@@ -44,6 +44,14 @@ function mergePurchases(...groups: PurchaseRecord[][]) {
   return [...byBuyerAndContent.values()]
 }
 
+function formatCreatedDate(value: string) {
+  return new Date(value).toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  })
+}
+
 export function CreatorDashboard() {
   const { connection } = useConnection()
   const wallet = useWallet()
@@ -69,32 +77,32 @@ export function CreatorDashboard() {
     async function loadRecords() {
       try {
         setLoadingRecords(true)
-        const portableRecords = listPortableShares(wallet.publicKey!.toBase58()).map(
+        const linkBasedRecords = listPortableShares(wallet.publicKey!.toBase58()).map(
           (share) => share.record,
         )
-        const data = runtimeConfig.supabaseConfigured
+        const syncedRecords = runtimeConfig.supabaseConfigured
           ? await listCreatorContent(wallet.publicKey!.toBase58())
           : []
 
         if (!cancelled) {
-          setRecords(mergeContentRecords(portableRecords, data))
+          setRecords(mergeContentRecords(linkBasedRecords, syncedRecords))
         }
 
-        const allIds = [...portableRecords, ...data].map((record) => record.id)
-        const purchaseData = runtimeConfig.supabaseConfigured
+        const allIds = [...linkBasedRecords, ...syncedRecords].map((record) => record.id)
+        const syncedPurchases = runtimeConfig.supabaseConfigured
           ? await listPurchasesForContentIds(allIds)
           : []
         const localPurchases = listLocalPurchasesForContentIds(allIds)
 
         if (!cancelled) {
-          setPurchases(mergePurchases(purchaseData, localPurchases))
+          setPurchases(mergePurchases(syncedPurchases, localPurchases))
         }
       } catch (caughtError) {
         if (!cancelled) {
           setError(
             caughtError instanceof Error
               ? caughtError.message
-              : 'Unable to load creator content.',
+              : 'Unable to load your releases.',
           )
         }
       } finally {
@@ -118,7 +126,7 @@ export function CreatorDashboard() {
   }, 0)
   const uniqueBuyerCount = new Set(purchases.map((purchase) => purchase.buyer_pubkey)).size
   const mintedPassCount = purchases.filter((purchase) => purchase.access_nft_mint).length
-  const portableShareMap = new Map(
+  const shareLinkMap = new Map(
     listPortableShares(wallet.publicKey?.toBase58()).map((share) => [
       share.record.id,
       share.shareUrl,
@@ -129,7 +137,7 @@ export function CreatorDashboard() {
     event.preventDefault()
 
     if (!wallet.publicKey) {
-      setError('Connect Phantom before creating content.')
+      setError('Connect a wallet before publishing.')
       return
     }
 
@@ -187,35 +195,37 @@ export function CreatorDashboard() {
       const message =
         caughtError instanceof Error
           ? caughtError.message
-          : 'Unable to create a new content record.'
+          : 'Unable to publish this release.'
 
       if (shouldOfferPortableMode(message) && !file) {
         try {
-          const portableRecord = buildPortableContentRecord({
+          const linkBasedRecord = buildPortableContentRecord({
             ...baseInput,
             contentHash: baseInput.contentHash || `portable-${Date.now()}`,
           })
-          const portableUrl = buildPortableShareUrl(portableRecord)
+          const shareUrl = buildPortableShareUrl(linkBasedRecord)
           savePortableShare({
-            record: portableRecord,
-            shareUrl: portableUrl,
+            record: linkBasedRecord,
+            shareUrl,
           })
 
-          setRecords((current) => mergeContentRecords([portableRecord], current))
-          setLastCreatedRecord(portableRecord)
+          setRecords((current) => mergeContentRecords([linkBasedRecord], current))
+          setLastCreatedRecord(linkBasedRecord)
           setForm(initialForm)
           setFile(null)
-          setSuccess(portableUrl)
+          setSuccess(shareUrl)
           setWarning(
-            'Supabase is still missing the monetization tables, so this drop was packaged as a portable demo link. NFT-backed access will still reopen anywhere because ownership is checked on-chain.',
+            form.accessModel === 'nft'
+              ? 'Share-ready link created. Buyers can unlock and hold access from the same wallet.'
+              : 'Share-ready link created. Buyers can unlock instantly from the shared link.',
           )
           setError(null)
           return
-        } catch (portableError) {
+        } catch (linkError) {
           setError(
-            portableError instanceof Error
-              ? portableError.message
-              : 'Portable demo mode could not package this link.',
+            linkError instanceof Error
+              ? linkError.message
+              : 'Unable to package this release for sharing.',
           )
           return
         }
@@ -223,7 +233,7 @@ export function CreatorDashboard() {
 
       if (shouldOfferPortableMode(message) && file) {
         setError(
-          'Supabase is not ready for private-file uploads yet. Remove the file for a portable text demo, or apply the Supabase migrations first.',
+          'Private file delivery is not available for this release yet. Publish as text only or reconnect storage first.',
         )
         return
       }
@@ -238,54 +248,29 @@ export function CreatorDashboard() {
     <main className="content-layout">
       <section className="page-header">
         <div className="eyebrow">Creator studio</div>
-        <h1>Set the price. Ship the link. Let money move on unlock.</h1>
+        <h1>Create a premium release in minutes.</h1>
         <p>
-          This is the compressed control center for the next 48 hours: create the paid
-          content, choose whether access is wallet-only or NFT-backed, and generate a QR
-          code that makes the live demo feel instant on mobile.
+          Set a price, choose the access model, publish text or gated files, and
+          distribute through clean links and QR-ready sharing.
         </p>
 
         <div className="metric-row">
           <article className="metric">
             <span>Total earned</span>
             <strong>{formatSol(totalEarnedLamports)}</strong>
-            <small>{formatUsdEstimate(totalEarnedLamports, solPriceUsd) || 'USD quote loading'}</small>
+            <small>{formatUsdEstimate(totalEarnedLamports, solPriceUsd) || 'USD estimate loading'}</small>
           </article>
           <article className="metric">
-            <span>Total buyers</span>
+            <span>Buyers</span>
             <strong>{uniqueBuyerCount}</strong>
-            <small>{wallet.publicKey ? 'Unique purchasing wallets' : 'Connect to load stats'}</small>
+            <small>{wallet.publicKey ? 'Unique purchasing wallets' : 'Connect to load activity'}</small>
           </article>
           <article className="metric">
             <span>Access passes</span>
             <strong>{mintedPassCount}</strong>
-            <small>{runtimeConfig.solanaNetwork} access NFTs minted</small>
+            <small>Issued to eligible buyers</small>
           </article>
         </div>
-
-        {!runtimeConfig.supabaseConfigured ? (
-          <div className="notice warning">
-            Supabase env is missing. The studio can still create portable text-only demo links,
-            but private-file uploads and hosted purchase records need{' '}
-            <span className="inline-code">VITE_SUPABASE_URL</span> plus a client key.
-          </div>
-        ) : null}
-
-        {!runtimeConfig.programConfigured ? (
-          <div className="notice warning">
-            The frontend still creates the off-chain record, but the on-chain PDA will stay
-            blank until you replace the placeholder{' '}
-            <span className="inline-code">VITE_MONETIZATION_PROGRAM_ID</span>.
-          </div>
-        ) : null}
-
-        {runtimeConfig.programConfigured ? (
-          <div className="notice">
-            The current contract keeps the on-chain layer intentionally thin: one content PDA
-            per creator, direct SOL transfer, and optional NFT access passes layered on top for
-            the wow moment.
-          </div>
-        ) : null}
       </section>
 
       <section className="composer-card">
@@ -296,7 +281,7 @@ export function CreatorDashboard() {
               id="title"
               value={form.title}
               onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))}
-              placeholder="Token-gated teardown of my growth stack"
+              placeholder="Creator Revenue Playbook"
               required
             />
           </div>
@@ -309,7 +294,7 @@ export function CreatorDashboard() {
               onChange={(event) =>
                 setForm((current) => ({ ...current, description: event.target.value }))
               }
-              placeholder="Tell the consumer what they are buying."
+              placeholder="Summarize the value of this release in one clear sentence."
             />
           </div>
 
@@ -322,19 +307,19 @@ export function CreatorDashboard() {
                 onChange={(event) =>
                   setForm((current) => ({ ...current, previewText: event.target.value }))
                 }
-                placeholder="This is what non-paying viewers can read."
+                placeholder="What should non-buyers see before they unlock?"
               />
             </div>
 
             <div className="field-group">
-              <label htmlFor="body">Unlocked body</label>
+              <label htmlFor="body">Full-access content</label>
               <textarea
                 id="body"
                 value={form.bodyMarkdown}
                 onChange={(event) =>
                   setForm((current) => ({ ...current, bodyMarkdown: event.target.value }))
                 }
-                placeholder="Paste text content here for the fastest Week 1 demo."
+                placeholder="Write the premium content buyers receive after payment."
               />
             </div>
           </div>
@@ -356,7 +341,7 @@ export function CreatorDashboard() {
               <div className="helper">
                 {formatUsdEstimate(toLamports(form.priceSol), solPriceUsd)
                   ? `Approx. ${formatUsdEstimate(toLamports(form.priceSol), solPriceUsd)}`
-                  : 'SOL settles fastest. USD reference loads when the market quote returns.'}
+                  : 'Pricing reference updates automatically when the market quote returns.'}
               </div>
             </div>
 
@@ -379,7 +364,7 @@ export function CreatorDashboard() {
                 type="button"
               >
                 <strong>Direct unlock</strong>
-                <span>Fastest path. Buyer pays once and unlocks immediately.</span>
+                <span>Buy once and open instantly from the paying wallet.</span>
               </button>
               <button
                 className={`choice-card ${form.accessModel === 'nft' ? 'selected' : ''}`}
@@ -387,21 +372,21 @@ export function CreatorDashboard() {
                 type="button"
               >
                 <strong>Transferable access pass</strong>
-                <span>Buyer mints a wallet-held NFT after payment. Great for the demo story.</span>
+                <span>Issue a wallet-held pass after payment for portable access.</span>
               </button>
             </div>
           </div>
 
           <div className="helper">
-            Use inline text for the fastest unlock demo. Add a file when you are ready to
-            show signed URLs and private storage as part of the creator story.
+            Inline content publishes fastest. Add a private file when you want gated downloads
+            or deliverables behind the purchase link.
           </div>
 
           {error ? <div className="notice error">{error}</div> : null}
           {warning ? <div className="notice warning">{warning}</div> : null}
           {success ? (
             <div className="notice">
-              Shareable link created:
+              Share link created:
               <br />
               <span className="inline-code">{success}</span>
             </div>
@@ -409,10 +394,10 @@ export function CreatorDashboard() {
 
           <div className="hero-actions">
             <button className="button button-primary" disabled={submitting} type="submit">
-              {submitting ? 'Publishing link...' : 'Create monetized link'}
+              {submitting ? 'Publishing...' : 'Publish release'}
             </button>
             <Link className="button button-secondary" to="/">
-              Back to overview
+              Back home
             </Link>
           </div>
         </form>
@@ -423,18 +408,17 @@ export function CreatorDashboard() {
       ) : null}
 
       <section className="content-panel">
-        <div className="section-label">Creator records</div>
-        <h2>Your monetized drops</h2>
+        <div className="section-label">Published releases</div>
+        <h2>Your catalog</h2>
         <p className="viewer-copy">
-          Each row becomes a shareable paywall. QR is the room-friendly entry point. Access
-          pass is the technical flex. The live demo only needs one flow that never breaks.
+          Every release gets a dedicated access route, a share link, and mobile-ready QR distribution.
         </p>
 
-        {loadingRecords ? <div className="empty-state">Loading creator content...</div> : null}
+        {loadingRecords ? <div className="empty-state">Loading releases...</div> : null}
 
         {!loadingRecords && visibleRecords.length === 0 ? (
           <div className="empty-state">
-            No content has been created yet. Publish one record to start testing the paywall.
+            Your first premium release will appear here once it is published.
           </div>
         ) : null}
 
@@ -444,28 +428,28 @@ export function CreatorDashboard() {
               <header>
                 <div>
                   <h3>{record.title}</h3>
-                  <p>{record.description || 'No description yet.'}</p>
+                  <p>{record.description || 'Premium content with wallet-based access.'}</p>
                 </div>
                 <Link
                   className="button button-secondary"
                   to={
-                    portableShareMap.get(record.id)?.replace(window.location.origin, '') ||
+                    shareLinkMap.get(record.id)?.replace(window.location.origin, '') ||
                     `/view/${record.id}`
                   }
                 >
-                  Open viewer
+                  Open release
                 </Link>
               </header>
 
               <div className="record-meta">
                 <span>{formatSol(record.price_lamports)}</span>
-                <span>{record.access_model === 'nft' ? 'NFT access pass' : 'Direct unlock'}</span>
-                <span className="mono">{record.id}</span>
+                <span>{record.access_model === 'nft' ? 'Transferable access' : 'Direct unlock'}</span>
+                <span>{formatCreatedDate(record.created_at)}</span>
               </div>
 
               <QRCreatorCard
                 title={record.title}
-                url={portableShareMap.get(record.id) || `${window.location.origin}/view/${record.id}`}
+                url={shareLinkMap.get(record.id) || `${window.location.origin}/view/${record.id}`}
               />
             </article>
           ))}

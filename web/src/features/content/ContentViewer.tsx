@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { useWallet } from '@solana/wallet-adapter-react'
 import type { ContentRecord } from './types'
 import { fetchContentById } from './data'
+import { featuredContent, featuredContentId } from './featured'
 import { decodePortableContent } from './portable'
 import { useContentPurchase } from './useContentPurchase'
 import {
@@ -12,28 +13,7 @@ import {
   formatUsdEstimate,
   shortenAddress,
 } from '../../lib/solana'
-import { runtimeConfig } from '../../lib/config'
 import { useSolPrice } from '../../lib/useSolPrice'
-
-const demoContentId = 'demo-content-id'
-const demoContent: ContentRecord = {
-  id: demoContentId,
-  creator_wallet: '11111111111111111111111111111111',
-  title: 'Programmable monetization demo drop',
-  description:
-    'A sample unlock flow that lets you inspect the hosted experience before the backend project is fully provisioned.',
-  preview_text:
-    'This demo preview stays public so anyone can inspect the paywall shell, wallet hooks, and unlock UX without touching live records.',
-  body_markdown:
-    'Week 1 ships the thin edge of the wedge: a creator publishes an asset, a buyer pays once, and the app swaps the preview for the full experience. The live Supabase project still needs the SQL migration before public records can be written.',
-  storage_bucket: null,
-  storage_path: null,
-  content_hash: 'demo-content-hash',
-  chain_content_pda: null,
-  price_lamports: 250_000_000,
-  access_model: 'nft',
-  created_at: '2026-04-27T00:00:00.000Z',
-}
 
 export function ContentViewer() {
   const { contentId = '' } = useParams()
@@ -48,14 +28,12 @@ export function ContentViewer() {
     error: purchaseError,
     mintAccessPass,
     paymentSignature,
-    purchase,
+    purchase: startPurchase,
     signedUrl,
     state,
     warning,
   } = useContentPurchase(content)
-  const isDemoRoute = contentId === demoContentId
   const portablePayload = searchParams.get('payload')
-  const isPortableRoute = Boolean(portablePayload)
 
   useEffect(() => {
     let cancelled = false
@@ -64,15 +42,13 @@ export function ContentViewer() {
       if (portablePayload) {
         const portableRecord = decodePortableContent(portablePayload)
         setContent(portableRecord)
-        setLoadError(
-          portableRecord ? null : 'This portable link is invalid or was truncated in transit.',
-        )
+        setLoadError(portableRecord ? null : 'This release link could not be opened.')
         setLoading(false)
         return
       }
 
-      if (isDemoRoute) {
-        setContent(demoContent)
+      if (contentId === featuredContentId) {
+        setContent(featuredContent)
         setLoadError(null)
         setLoading(false)
         return
@@ -83,14 +59,14 @@ export function ContentViewer() {
         const record = await fetchContentById(contentId)
         if (!cancelled) {
           setContent(record)
-          setLoadError(record ? null : 'No content exists for this ID yet.')
+          setLoadError(record ? null : 'This release could not be found.')
         }
       } catch (caughtError) {
         if (!cancelled) {
           setLoadError(
             caughtError instanceof Error
               ? caughtError.message
-              : 'Unable to load content metadata.',
+              : 'Unable to load this release right now.',
           )
         }
       } finally {
@@ -105,23 +81,22 @@ export function ContentViewer() {
     return () => {
       cancelled = true
     }
-  }, [contentId, isDemoRoute, portablePayload])
+  }, [contentId, portablePayload])
 
   return (
     <main className="page">
       <section className="page-header">
-        <div className="eyebrow">Consumer viewer</div>
-        <h1>Open the link. Pay in SOL. Keep the unlock.</h1>
+        <div className="eyebrow">Premium access</div>
+        <h1>Unlock premium content with a wallet-native payment.</h1>
         <p>
-          This route is the buyer story in one screen: fetch the content, price it in SOL,
-          complete the payment, and optionally mint a transferable access pass that another
-          wallet can later use to unlock the same drop.
+          Connect a Solana wallet, confirm the purchase, and open the full release.
+          Eligible drops can also issue a transferable access pass that stays with the holder.
         </p>
       </section>
 
       <section className="viewer-grid">
         <article className="viewer-card">
-          {loading ? <div className="empty-state">Loading content metadata...</div> : null}
+          {loading ? <div className="empty-state">Loading release...</div> : null}
 
           {!loading && loadError ? <div className="notice error">{loadError}</div> : null}
 
@@ -139,7 +114,7 @@ export function ContentViewer() {
               <div>
                 <h2>{content.title}</h2>
                 <p className="viewer-copy">
-                  {content.description || 'No description was added for this content.'}
+                  {content.description || 'Premium content with wallet-based access.'}
                 </p>
               </div>
 
@@ -148,41 +123,30 @@ export function ContentViewer() {
                   <span>Price</span>
                   <strong>{formatSol(content.price_lamports)}</strong>
                   <small>
-                    {formatUsdEstimate(content.price_lamports, solPriceUsd) || 'USD quote loading'}
+                    {formatUsdEstimate(content.price_lamports, solPriceUsd) || 'USD estimate loading'}
                   </small>
                 </article>
                 <article className="metric">
                   <span>Wallet</span>
                   <strong>{wallet.connected ? 'Connected' : 'Not connected'}</strong>
-                  <small>{wallet.publicKey ? shortenAddress(wallet.publicKey.toBase58()) : 'Phantom or Backpack'}</small>
+                  <small>
+                    {wallet.publicKey
+                      ? shortenAddress(wallet.publicKey.toBase58())
+                      : 'Use Phantom or Backpack'}
+                  </small>
                 </article>
                 <article className="metric">
-                  <span>Unlock model</span>
-                  <strong>{content.access_model === 'nft' ? 'Access pass' : 'Direct unlock'}</strong>
-                  <small>{runtimeConfig.solanaNetwork}</small>
+                  <span>Access</span>
+                  <strong>{content.access_model === 'nft' ? 'Transferable pass' : 'Direct unlock'}</strong>
+                  <small>Settles on Solana</small>
                 </article>
               </div>
-
-              {isDemoRoute ? (
-                <div className="notice">
-                  This demo route is powered by sample content so the hosted app stays explorable
-                  while the real Supabase tables and storage policies are being applied.
-                </div>
-              ) : null}
-
-              {isPortableRoute ? (
-                <div className="notice">
-                  This drop was packaged directly into the URL so the demo can stay shareable
-                  before hosted Supabase tables are live. NFT-backed access still verifies from
-                  the chain after payment.
-                </div>
-              ) : null}
 
               {state !== 'unlocked' ? (
                 <div className="viewer-lock">
                   <h3>Preview</h3>
                   <p className="viewer-copy">
-                    {content.preview_text || 'No preview text has been added yet.'}
+                    {content.preview_text || 'A preview is not available for this release.'}
                   </p>
 
                   {purchaseError ? <div className="notice error">{purchaseError}</div> : null}
@@ -190,45 +154,36 @@ export function ContentViewer() {
 
                   {content.access_model === 'nft' ? (
                     <div className="helper">
-                      After payment, this drop mints a transferable access pass to the buyer
-                      wallet. Whoever holds that NFT can unlock the content later.
+                      This release can issue an access pass after payment, so eligibility can
+                      travel with the wallet that holds it.
                     </div>
                   ) : null}
 
-                  {isDemoRoute ? (
-                    <div className="hero-actions">
-                      <span className="mini-note">
-                        The live payment button will activate after the hosted Supabase schema and
-                        devnet program are available.
-                      </span>
-                    </div>
-                  ) : (
-                    <div className="hero-actions">
-                      <button
-                        className="button button-primary"
-                        disabled={!wallet.connected || state === 'paying' || state === 'minting'}
-                        onClick={purchase}
-                      >
-                        {state === 'paying'
-                          ? 'Confirming payment...'
-                          : state === 'minting'
-                            ? 'Minting access pass...'
+                  <div className="hero-actions">
+                    <button
+                      className="button button-primary"
+                      disabled={!wallet.connected || state === 'paying' || state === 'minting'}
+                      onClick={startPurchase}
+                    >
+                      {state === 'paying'
+                        ? 'Confirming payment...'
+                        : state === 'minting'
+                          ? 'Creating access pass...'
                           : `Pay ${formatSol(content.price_lamports)}`}
-                      </button>
-                      {!wallet.connected ? (
-                        <span className="mini-note">
-                          Connect Phantom before attempting payment.
-                        </span>
-                      ) : null}
-                    </div>
-                  )}
+                    </button>
+                    {!wallet.connected ? (
+                      <span className="mini-note">
+                        Connect a wallet to continue.
+                      </span>
+                    ) : null}
+                  </div>
                 </div>
               ) : (
                 <div className="viewer-unlocked">
-                  <h3>Unlocked content</h3>
+                  <h3>Full release</h3>
                   {warning ? <div className="notice warning">{warning}</div> : null}
                   <p className="viewer-copy">
-                    {content.body_markdown || 'No inline body was stored for this item.'}
+                    {content.body_markdown || 'The release body is not available.'}
                   </p>
 
                   <div className="unlock-meta">
@@ -239,7 +194,7 @@ export function ContentViewer() {
                         rel="noreferrer"
                         target="_blank"
                       >
-                        View payment on Explorer
+                        View payment
                       </a>
                     ) : null}
                     <a
@@ -248,7 +203,7 @@ export function ContentViewer() {
                       rel="noreferrer"
                       target="_blank"
                     >
-                      View creator wallet
+                      View creator
                     </a>
                   </div>
 
@@ -257,12 +212,12 @@ export function ContentViewer() {
                       <div>
                         <div className="section-label">Access pass</div>
                         <h3>
-                          {accessPass ? 'Transferable access is live.' : 'Mint the access pass.'}
+                          {accessPass ? 'Access is now wallet-held.' : 'Create the access pass.'}
                         </h3>
                         <p className="viewer-copy">
                           {accessPass
-                            ? 'This wallet holds the NFT-backed unlock. Transfer it and the new holder gets access.'
-                            : 'Payment already succeeded. Minting the pass turns this unlock into a transferable Solana asset.'}
+                            ? 'This wallet now holds the transferable unlock for this release.'
+                            : 'Minting the pass turns this purchase into a transferable access asset.'}
                         </p>
                       </div>
 
@@ -277,13 +232,13 @@ export function ContentViewer() {
                             rel="noreferrer"
                             target="_blank"
                           >
-                            View NFT mint
+                            View access pass
                           </a>
                         </div>
                       ) : (
                         <div className="hero-actions">
                           <button className="button button-primary" onClick={mintAccessPass}>
-                            Mint access pass
+                            Create access pass
                           </button>
                         </div>
                       )}
@@ -307,32 +262,33 @@ export function ContentViewer() {
         </article>
 
         <aside className="content-panel">
-          <div className="section-label">Viewer checklist</div>
-          <h2>What this route proves in the 48-hour version</h2>
+          <div className="section-label">Access details</div>
+          <h2>How unlocks work</h2>
           <ul className="feature-list">
-            <li>Metadata lookup is keyed by shareable UUID, not wallet state.</li>
-            <li>Portable links keep the live demo moving even while backend migrations are pending.</li>
-            <li>Payment confirmation unlocks immediately, even if off-chain bookkeeping lags.</li>
-            <li>NFT-backed drops can be reopened by any wallet that holds the access pass.</li>
-            <li>Explorer links make the demo resilient if a judge asks for verification.</li>
+            <li>Every release has a dedicated payment route and pricing state.</li>
+            <li>Purchases unlock immediately after transaction confirmation.</li>
+            <li>NFT-backed drops can be reopened by the wallet that holds the access pass.</li>
+            <li>Explorer-backed verification stays available for every completed payment.</li>
           </ul>
 
           <div className="config-grid">
             <div className="helper">
-              Route: <span className="inline-code">/view/{contentId || ':contentId'}</span>
+              Release: <span className="inline-code">{content?.title || 'Loading'}</span>
             </div>
             <div className="helper">
-              Wallet: <span className="inline-code">{wallet.publicKey?.toBase58() || 'Not connected'}</span>
+              Buyer: <span className="inline-code">{wallet.publicKey?.toBase58() || 'Not connected'}</span>
             </div>
             <div className="helper">
-              {content?.access_model === 'nft'
-                ? 'This unlock can be transferred by moving the access pass NFT.'
-                : 'This unlock is tied to the original buyer purchase record.'}
+              {paymentSignature || state === 'unlocked'
+                ? 'Purchase recognized for this wallet.'
+                : content?.access_model === 'nft'
+                  ? 'Eligible wallets can reopen this release through pass ownership.'
+                  : 'Access is granted after payment confirmation.'}
             </div>
           </div>
 
           <Link className="button button-secondary" to="/creator">
-            Back to creator studio
+            Open creator studio
           </Link>
         </aside>
       </section>

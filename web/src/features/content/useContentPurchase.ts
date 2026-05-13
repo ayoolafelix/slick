@@ -35,7 +35,6 @@ export function useContentPurchase(content: ContentRecord | null) {
   const [signedUrl, setSignedUrl] = useState<string | null>(null)
   const [paymentSignature, setPaymentSignature] = useState<string | null>(null)
   const [accessPass, setAccessPass] = useState<OwnedAccessPass | null>(null)
-  const isDemoContent = content?.id === 'demo-content-id'
 
   async function loadSignedUrl(current: ContentRecord) {
     if (!current.storage_bucket || !current.storage_path) {
@@ -54,16 +53,6 @@ export function useContentPurchase(content: ContentRecord | null) {
       if (!content) {
         setState('error')
         setError('This content record could not be found.')
-        return
-      }
-
-      if (isDemoContent) {
-        setState('locked')
-        setError(null)
-        setWarning(null)
-        setSignedUrl(null)
-        setPaymentSignature(null)
-        setAccessPass(null)
         return
       }
 
@@ -141,18 +130,12 @@ export function useContentPurchase(content: ContentRecord | null) {
     return () => {
       cancelled = true
     }
-  }, [connection, content, isDemoContent, wallet.publicKey])
+  }, [connection, content, wallet.publicKey])
 
   async function purchase() {
     if (!content) {
       setState('error')
       setError('No content is loaded for this route.')
-      return
-    }
-
-    if (isDemoContent) {
-      setState('locked')
-      setError('The demo route is read-only until the hosted Supabase schema is applied.')
       return
     }
 
@@ -215,7 +198,9 @@ export function useContentPurchase(content: ContentRecord | null) {
       } catch (caughtError) {
         nextWarning =
           caughtError instanceof Error && shouldOfferPortableMode(caughtError.message)
-            ? 'Payment was confirmed on-chain and cached in this browser. The hosted Supabase schema is still pending, so portable demo mode is carrying the persistence layer for now.'
+            ? content.access_model === 'nft'
+              ? 'Payment is confirmed. This wallet can continue to prove access through its access pass.'
+              : 'Payment is confirmed and access is available now.'
             : caughtError instanceof Error
               ? `${caughtError.message} Payment still confirmed on-chain, so the current session is unlocked.`
             : 'Payment confirmed, but purchase persistence failed. The current session is still unlocked.'
